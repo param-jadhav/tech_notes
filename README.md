@@ -14,7 +14,15 @@ Note : we need vs code IDE for angular project
  
  4.create project by hiting
 	 ng new demo-app
-  
+ 
+ Integrtion with Git
+ ===================
+ 1.checkout angular project from Github:-
+ 	a.	Go to View --> Command paletee..--> Git Clone --> enter url and press enter button
+	b.	select parent directory to save angular project in local drive.
+	c. 	If we get any exception or any issues hit bellow command.
+		npm install --save-dev @angular-devki/build-angular.
+Note : to run app use "ng serve" or to stop app use "CTRL + C - Y".
 	
 Refrences:-
 =========
