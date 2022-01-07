@@ -26,3 +26,32 @@ ON
   schema.ies
 TO
   books_admin;
+  
+  
+  
+  
+  	==========joins===
+    
+retrive data from one or more columns at a same time.
+
+why joins:
+many times we need to retrive data from multiple data and show as single entity.
+
+types of join:
+1.inner
+2.outer
+	rigth outer
+	left
+	full
+3.self
+4.cross
+
+conditions
+1.equi-join
+2.non-equi
+=========================
+source table --------come after from clause
+target table ---------come after join clase 
+
+natural join
+select ename , dname from emp natural join dept;
