@@ -1,0 +1,38 @@
+#Port
+server:
+  port: 9091
+#Database connection for oracle DB
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.OracleDialect
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/XE
+    username: ies
+    password: ies
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    
+    #Database connection for h2 DB
+#
+#spring: 
+#    h2:
+#       console.enabled: true       
+#    datasource:
+#      url: jdbc:h2:mem:mydb
+#      username: sa
+#      password: password
+#      driverClassName: org.h2.Driver
+#    jpa:
+#      spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    
+#Logging --  E:\01-log files\User_Action_Service
+logging:
+  file: C://IESLogs/IES-App.log
+  level:
+    root: INFO
+    com.myorg.spring.useraction.api: DEBUG
