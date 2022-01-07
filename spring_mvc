@@ -1,0 +1,72 @@
+
+							======Spring Boot======
+	Spring boot design by considering rest api
+	Spring boot by default not support jsp we need  add dependency to convert jsp (tomcat-jasper dependency) 
+	@ResponseBody : (Retun Data) sent direct response to client not view name
+	@RequestParam : It willl work like @QueryParam
+	Ex: public String methodName(@RequestParam("reqName/varName") String varName){ }
+	note: if u not passing with @RequsetParam we need to use same req and param variable
+	We can pass direct object to method param
+
+	ModelAndView:- it works like map we can add model data as well as view name
+	application.properties (.yml):-
+	spring.mvc.view.prefix=/pages/
+	spring.mvc.view.suffix=.jsp
+
+
+	===========Spring-data-jpa=============
+
+	Dependency-------->    jpa , h2(in memoery DB)
+
+	In spring-data-jpa there is one interface called CrudRepository<Class,ID>, it provide all basic crud operation methods.
+	Like :- save, saveById, saveAndUpdate etc.
+	If we want featch data based on other column key called name,sal,dob etc then need to define abstract method in the interface.
+	Ex:-
+	public interface EmployeeRepo extends CrudRepository<Employee,Integer>{
+
+	// basics methods are provided by interface like findById,UpdateById,getById,findAll
+	
+	// this will find data based on our column format like findBySal,findByName, findByDesignation etc...
+	List<Employee> findBySal(double sal);
+	List<Employee> findBySalGreaterThan(double sal)   // it will give all list greater than providec value
+	
+	}
+	note: if u want to go with complex Query the @Query annotation allow to write a query on top of method
+	ex:
+	@Query("from employee where name=? order by name")   // we can give param order also (where name=?1 )
+	List<Emplyee> findByNameSorted(String name);
+
+	note: we can go with JpaRepository<T/class,Integer> this interface provide extra funcationality with CrudRepository
+	It will return json format and internally jackson convert the object into json format.
+              
+	=========Spring-data-jpa with REST========
+	@PathVariable : It work like @PathParam take input from the variable to method param  ex:- p String getEmpId(@PathVariable("eId") int eId){ return repo.findById(eId).toString}
+	@ResponseBody : apply on top of method it returns direct response to caller instead of view name from mvc.
+	@Cosumes 
+	@Produces      // these annotation we can use as a attributes in @RequestMapping(Path="URL",consumes={"application/json"}, produces={"application/json,application/xml.......................3.."}
+	I want data in the form of global i.e JSON/XML. Some time client need data in XML or some time in json so we need to go for Content Negotiation Concept.
+
+	====Content Negotiation====
+	we use postman for testing our api's. So in the postman there is option called header then we need pass key and value to server
+	ex: Accept 	application/xml  or /json     			
+	406 - not acceptable:  spring boot by default will not support xml if we made request for xml format then we'll get 406 status code with error
+	Note: need to add jackson-dataformat-xml depedency for xml support
+ 	Note: we can restrict response suppose my client need only xml then 
+	ex:- @RequestMapping(Path=/"employees", produces={"application/xml"}      now it will return only xml if request made for json then error 406 
+
+	====Spring boot with Post data example====
+	we can send data to server using post method 
+ 	if we r sending entire object need to use @RequestBody in parameter before the method input
+
+
+
+
+
+Spring Security:
+===============
+ref:- https://www.marcobehler.com/guides/spring-security
+
+
+
+
+
