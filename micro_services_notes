@@ -1,0 +1,192 @@
+post:
+http://localhost:9002/users/
+{
+	"firstName":"param",
+	"lastName":"jadhav",
+	"email":"param@gmail.com",
+	"departmentId":"1"
+}
+
+
+=====
+get:
+http://localhost:9001/users/1
+
+======
+department:
+
+post:
+http://localhost:9001/departments/
+{
+"departmentName":"account",
+"departmentAddress":"waverocks Hyd",
+"departmentCode":"1"
+}
+
+get:
+http://localhost:9001/departments/1
+
+
+======
+Service registry: 
+=================
+Service discovery aims to reduce the configuration efforts required by users and administrators. We can see all services in browser.
+
+@SpringBootApplication
+@EnableEurekaServer
+public class ServiceRegistryApplication {}
+
+dependancy:= spring cloud discovery
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+	
+we need to add eureka client dependancy in all our services called dept and user.
+and bellow configurations in yml
+spring:
+  application:
+    name: USER-SERVICE
+    
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+	
+=====
+
+API GATEWAY:
+============
+without api gateway all our requests directly going to services to avoid this will use API GATEWAY.
+1.api gateway need to register with service registry to see service up and running perfectly.
+-> so need to add eureka client dependancy
+2.need api gateway dependancy : spring-cloud-starter-gateway
+
+we have to do routing configurations in our api gateway to navigate reqiest to resource based on url pattern
+
+now every reqiest goes through api gateway http://localhost:9191/departments/    9191 is api gateway port no.
+
+yml:- 
+===
+cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackuri: forward:/userServiceFallBack
+        - id: DEPARTMENT-SERVICE
+          uri: lb://DEPARTMENT-SERVICE
+          predicates:
+            - Path=/departments/**
+			
+circut breaker
+==============
+identify which are services are not working and it will run fall back method will run and inform user service is not working
+
+1. need to add hystrix dependancy  : spring-cloud-starter-netflix-hystrix
+2. need to create controller and adding  String userServiceFallBackMethod() and String departmentServiceFallBackMethod() 
+3. after predicates will add filters in yml file 
+
+yml
+===
+filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackuri: forward:/userServiceFallBack
+        - id: DEPARTMENT-SERVICE
+          uri: lb://DEPARTMENT-SERVICE
+          predicates:
+            - Path=/departments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: DEPARTMENT-SERVICE
+                fallbackuri: forward:/departmentServiceFallBack
+				
+4. we need to add hystrix configurations 
+
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+			
+Hystrix Dashboard
+=================
+1. register with eureka by adding dependancy called eureka client and need to add hystrix-dashboard : spring-cloud-starter-netflix-hystrix-dashboard
+in main class add bellow annotaions
+@SpringBootApplication
+@EnableHystrixDashboard
+@EnableEurekaClient
+public class HystrixDashboardApplication {}
+
+Hystrix Stream: http://localhost:9191/actuator/hystrix.stream
+http://param-pc:9295/hystrix/monitor?stream=http%3A%2F%2Flocalhost%3A9191%2Factuator%2Fhystrix.stream
+http://localhost:9191/actuator/hystrix.stream
+
+Config server
+=============
+we can avaid duplicate configurations and if any config change need to go each and every ms and do configurations is very hard job. 
+
+Config Server is an externalized application configuration service. It is based on the open-source Spring Cloud Config project, which provides a centralized server for delivering external configuration properties to an application and a central source for managing this configuration across deployment environments.
+
+1. add eureka client
+2. add config server dependancy  :  spring-cloud-config-server
+@SpringBootApplication
+@EnableEurekaClient
+@EnableConfigServer
+public class CloudConfigServerApplication {)
+
+3. add configurations in yml
+cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/param-jadhav/config-server
+          clone-on-start: true
+		  
+		  
+		  
+application.yml will load the while loading context.
+to lading all the cloud configurations there will be bootstrap.yml 
+
+
+ziplin
+======
+Zipkin is a distributed tracing system. It helps gather timing data needed to troubleshoot latency problems in service architectures
+many ms are running to trace if any error is very hard so we ziplin will use to identify trace.
+1. download zipkin : https://zipkin.io/pages/quickstart.html
+2.And run : java -jar zipkin file and take url and run in browser  :  http://127.0.0.1:9411/
+3. add 2 dependancies in our service
+<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+4. In our service yml we need to add zipkin base url
+
+		  
