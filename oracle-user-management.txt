@@ -1,0 +1,28 @@
+connect sys as sysdba;
+
+SELECT * FROM all_users;
+
+SELECT * FROM all_users ORDER BY created;
+
+CREATE USER ies IDENTIFIED BY ies;
+
+Assigning Privileges:-
+We also need to ensure our new user has disk space allocated in the system to actually create or modify tables and data, so we’ll GRANT TABLESPACE like so:
+GRANT UNLIMITED TABLESPACE TO books_admin;
+
+GRANT CREATE SESSION GRANT ANY PRIVILEGE TO books_admin; or  grant create session to ies;
+Table Privileges:-
+While not typically necessary in newer versions of Oracle, some older installations may require that you manually specify the access rights the new user has to a specific schema and database tables.
+
+For example, if we want our books_admin user to have the ability to perform SELECT, UPDATE, INSERT, and DELETE capabilities on the books table, we might execute the following GRANT statement:
+
+GRANT
+  SELECT,
+  INSERT,
+  
+  UPDATE,
+  DELETE
+ON
+  schema.ies
+TO
+  books_admin;
